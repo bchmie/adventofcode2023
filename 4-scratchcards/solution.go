@@ -73,7 +73,7 @@ func stringSliceToIntSlice(input []string) (output []int) {
 	return
 }
 
-func part1(input []string) {
+func parseCards(input []string) []Scratchcard {
 	var cards []Scratchcard
 	for _, line := range input {
 		card := strings.Split(line, ": ")
@@ -85,7 +85,11 @@ func part1(input []string) {
 		winningNumbers := stringSliceToIntSlice(winningNumbersStr)
 		cards = append(cards, Scratchcard{id, numbers, winningNumbers})
 	}
+	return cards
+}
 
+func part1(input []string) {
+	cards := parseCards(input)
 	var sum float64
 	for _, card := range cards {
 		score := card.Score()
@@ -94,7 +98,34 @@ func part1(input []string) {
 	log.Printf("Sum of the points is: %f", sum)
 }
 
+func part2(input []string) {
+	cards := parseCards(input)
+	cardWonNumber := make(map[string]int)
+	for _, card := range cards {
+		cardWonNumber[card.id] = 1
+	}
+	for i, card := range cards {
+		for n := 0; n < cardWonNumber[card.id]; n++ {
+			matchingNumbers := card.MatchingNumbers()
+			if matchingNumbers != 0 {
+				for j:= 1; j <= matchingNumbers; j++ {
+					toIncrement := i + 1 + j
+					cardWonNumber[strconv.Itoa(toIncrement)] += 1
+				}
+			}
+		}
+		log.Printf("Partial total: %v times %v", card.id, cardWonNumber[card.id])
+	}
+
+	var sum int
+	for _, v := range cardWonNumber {
+		sum += v
+	}
+	log.Printf("Sum of the Scratchcards: %v", sum)
+}
+
 func main() {
 	input := readInput("input.txt")
 	part1(input)
+	part2(input)
 }
